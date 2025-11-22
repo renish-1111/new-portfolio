@@ -1,0 +1,5 @@
+{
+  "name": "NextGen Portfolio",
+  "description": "A 3D scrollable, cursor-interactive portfolio for a student developer featuring an AI chatbot powered by Gemini.",
+  "requestFramePermissions": []
+}
