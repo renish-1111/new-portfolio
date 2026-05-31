@@ -17,7 +17,7 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
   const scramble = useCallback(() => {
     let iteration = 0;
     const interval = setInterval(() => {
-      setDisplayText(prev => 
+      setDisplayText(() => 
         targetText
           .split("")
           .map((letter, index) => {
@@ -35,7 +35,7 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
 
       iteration += 1 / 3; // Speed of decoding
     }, 30);
-  }, [targetText]);
+  }, []);
 
   useEffect(() => {
     // Trigger scramble on mount

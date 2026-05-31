@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Hero3D from './components/Hero3D';
 import Projects from './components/Projects';
 import Skills from './components/Skills';
@@ -7,6 +7,7 @@ import LeetCode from './components/LeetCode';
 import Experience from './components/Experience';
 import AIChat from './components/AIChat';
 import Cursor from './components/Cursor';
+import ErrorBoundary from './components/ErrorBoundary';
 import { CursorContextType } from './types';
 import { SOCIAL_LINKS } from './constants';
 
@@ -14,9 +15,8 @@ const App: React.FC = () => {
   const [cursorVariant, setCursorVariant] = useState<CursorContextType['cursorVariant']>('default');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  // Helper to pass down cursor state
-  const setCursor = (v: CursorContextType['cursorVariant']) => setCursorVariant(v);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   // Handle scroll effect for navbar background
   useEffect(() => {
@@ -27,12 +27,47 @@ const App: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
+  // Lock body scroll when mobile menu is open, handle escape key and focus trap
   useEffect(() => {
     if (isMenuOpen) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          setIsMenuOpen(false);
+          menuButtonRef.current?.focus();
+        }
+        
+        // Basic focus trap
+        if (e.key === 'Tab' && menuRef.current) {
+          const focusableElements = menuRef.current.querySelectorAll('a[href]');
+          const firstElement = focusableElements[0] as HTMLElement;
+          const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+          
+          if (e.shiftKey && document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          } else if (!e.shiftKey && document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      };
+      
+      window.addEventListener('keydown', handleKeyDown);
+      
+      // Focus first link on open
+      setTimeout(() => {
+        const firstLink = menuRef.current?.querySelector('a');
+        firstLink?.focus();
+      }, 100);
+      
+      return () => window.removeEventListener('keydown', handleKeyDown);
     } else {
       document.body.style.overflow = 'unset';
+      document.body.style.paddingRight = '0px';
     }
   }, [isMenuOpen]);
 
@@ -79,8 +114,8 @@ const App: React.FC = () => {
                     href="#" 
                     onClick={(e) => handleNavClick(e, 'home')}
                     className="font-bold text-xl tracking-tight transition-colors relative z-50 group"
-                    onMouseEnter={() => setCursor('button')} 
-                    onMouseLeave={() => setCursor('default')}
+                    onMouseEnter={() => setCursorVariant('button')} 
+                    onMouseLeave={() => setCursorVariant('default')}
                 >
                     <span className="text-white">RENISH</span>
                     <span className="text-yellow-500 inline-block transform group-hover:scale-150 transition-transform duration-300">.</span>
@@ -95,8 +130,8 @@ const App: React.FC = () => {
                         href={`#${link.id}`} 
                         onClick={(e) => handleNavClick(e, link.id)}
                         className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-full transition-all duration-300"
-                        onMouseEnter={() => setCursor('button')} 
-                        onMouseLeave={() => setCursor('default')}
+                        onMouseEnter={() => setCursorVariant('button')} 
+                        onMouseLeave={() => setCursorVariant('default')}
                     >
                         {link.name}
                     </a>
@@ -105,11 +140,13 @@ const App: React.FC = () => {
 
                  {/* Mobile Menu Toggle */}
                 <button 
+                    ref={menuButtonRef}
                     className="md:hidden text-white relative z-50 p-2 focus:outline-none"
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    onMouseEnter={() => setCursor('button')} 
-                    onMouseLeave={() => setCursor('default')}
+                    onMouseEnter={() => setCursorVariant('button')} 
+                    onMouseLeave={() => setCursorVariant('default')}
                     aria-label="Toggle Menu"
+                    aria-expanded={isMenuOpen}
                 >
                     <div className={`w-6 h-0.5 bg-white mb-1.5 transition-all ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
                     <div className={`w-6 h-0.5 bg-white mb-1.5 transition-all ${isMenuOpen ? 'opacity-0' : ''}`} />
@@ -120,15 +157,21 @@ const App: React.FC = () => {
       </div>
 
       {/* Mobile Nav Overlay */}
-      <div className={`fixed inset-0 bg-black/95 backdrop-blur-xl z-[60] flex flex-col items-center justify-center space-y-8 transition-all duration-300 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+      <div 
+        ref={menuRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile Navigation"
+        className={`fixed inset-0 bg-black/95 backdrop-blur-xl z-[60] flex flex-col items-center justify-center space-y-8 transition-all duration-300 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+      >
             {navLinks.map((link) => (
               <a 
                 key={link.name}
                 href={`#${link.id}`}
                 onClick={(e) => handleNavClick(e, link.id)}
                 className="text-3xl font-bold tracking-tight hover:text-yellow-400 transition-colors"
-                onMouseEnter={() => setCursor('button')} 
-                onMouseLeave={() => setCursor('default')}
+                onMouseEnter={() => setCursorVariant('button')} 
+                onMouseLeave={() => setCursorVariant('default')}
               >
                 {link.name}
               </a>
@@ -136,11 +179,21 @@ const App: React.FC = () => {
       </div>
 
       <main>
-        <Hero3D setCursorVariant={setCursor} />
-        <Skills setCursorVariant={setCursor} id="about" />
-        <Experience setCursorVariant={setCursor} id="experience" />
-        <LeetCode setCursorVariant={setCursor} />
-        <Projects setCursorVariant={setCursor} id="projects" />
+        <ErrorBoundary>
+          <Hero3D setCursorVariant={setCursorVariant} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Skills setCursorVariant={setCursorVariant} id="about" />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Experience setCursorVariant={setCursorVariant} id="experience" />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <LeetCode setCursorVariant={setCursorVariant} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Projects setCursorVariant={setCursorVariant} id="projects" />
+        </ErrorBoundary>
         
         {/* Contact Section */}
         <section id="contact" className="py-32 px-4 text-center relative overflow-hidden">
@@ -155,8 +208,8 @@ const App: React.FC = () => {
                 <a 
                     href={`mailto:${SOCIAL_LINKS.email}`}
                     className="inline-block px-12 py-5 bg-white text-black rounded-full text-lg font-medium hover:bg-yellow-400 transition-colors duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(234,179,8,0.5)]"
-                    onMouseEnter={() => setCursor('button')}
-                    onMouseLeave={() => setCursor('default')}
+                    onMouseEnter={() => setCursorVariant('button')}
+                    onMouseLeave={() => setCursorVariant('default')}
                 >
                     Get In Touch
                 </a>
@@ -168,7 +221,7 @@ const App: React.FC = () => {
                  {/* Footer Socials */}
                  {Object.entries(SOCIAL_LINKS).map(([key, url]) => (
                      key !== 'email' && key !== 'leetcode' && (
-                        <a key={key} href={url} target="_blank" rel="noreferrer" className="text-gray-500 hover:text-yellow-500 transition-colors uppercase text-xs font-mono tracking-widest">
+                        <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-yellow-500 transition-colors uppercase text-xs font-mono tracking-widest">
                             {key}
                         </a>
                      )
@@ -178,7 +231,9 @@ const App: React.FC = () => {
         </footer>
       </main>
 
-      <AIChat setCursorVariant={setCursor} />
+      <ErrorBoundary>
+        <AIChat setCursorVariant={setCursorVariant} />
+      </ErrorBoundary>
       
     </div>
   );

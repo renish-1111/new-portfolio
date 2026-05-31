@@ -32,6 +32,13 @@ body {
   }
 }
 
+/* Ensure keyboard users have visible focus */
+*:focus-visible {
+  outline: 2px solid #facc15; /* Tailwind yellow-400 */
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 /* Custom Scrollbar - Refined for Huly look */
 ::-webkit-scrollbar {
   width: 6px;
@@ -47,21 +54,9 @@ body {
   background: #404040;
 }
 
-.perspective-1000 {
-  perspective: 1000px;
-}
 
-.preserve-3d {
-  transform-style: preserve-3d;
-}
 
-.backface-hidden {
-  backface-visibility: hidden;
-}
 
-.text-glow {
-  text-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
-}
 
 /* Huly-like Easing */
 .ease-huly {

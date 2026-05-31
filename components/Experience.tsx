@@ -48,7 +48,7 @@ const Experience: React.FC<ExperienceProps> = ({ setCursorVariant, id }) => {
             <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-white/10 transform -translate-x-1/2"></div>
 
             {EXPERIENCE.map((job, idx) => (
-                <div key={idx} className={`relative md:flex items-center justify-between group ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
+                <div key={`${job.company}-${idx}`} className={`relative md:flex items-center justify-between group ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
                     
                     {/* Timeline Dot */}
                     <div className={`hidden md:block absolute left-1/2 top-1/2 w-4 h-4 rounded-full border-2 border-yellow-500 bg-black transform -translate-x-1/2 -translate-y-1/2 z-10 transition-all duration-500 ${isVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} style={{ transitionDelay: `${idx * 200}ms` }}>
@@ -83,7 +83,7 @@ const Experience: React.FC<ExperienceProps> = ({ setCursorVariant, id }) => {
                             {/* Company Logo */}
                             <div className="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden bg-white/5 border border-white/10 shadow-inner relative group-hover/card:scale-105 transition-transform duration-500">
                                 <div className="absolute inset-0 bg-yellow-500/10 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300"></div>
-                                <img src={job.logo} alt={job.company} className="w-full h-full object-cover" />
+                                <img src={job.logo} alt={job.company} loading="lazy" className="w-full h-full object-cover" />
                             </div>
                             
                             {/* Role & Company Info */}

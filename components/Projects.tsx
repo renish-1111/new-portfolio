@@ -109,13 +109,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
                 ref={imageRef}
                 src={project.image} 
                 alt={project.title}
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover z-10 transition-transform duration-700 will-change-transform"
             />
             {/* Image Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] to-transparent opacity-60 z-10" />
+            <div className="absolute inset-0 bg-linear-to-t from-[#0f0f0f] to-transparent opacity-60 z-10" />
             
             {/* Top Highlight */}
-            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent z-20 opacity-50" />
+            <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/20 to-transparent z-20 opacity-50" />
         </div>
 
         {/* Content Section */}
@@ -124,8 +125,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
                 <h3 className="text-2xl font-bold text-white group-hover:text-yellow-400 transition-colors">{project.title}</h3>
                 <a 
                     href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="p-2 rounded-full bg-white/5 text-gray-400 hover:text-white hover:bg-yellow-500 transition-all duration-300 transform hover:scale-110 group-hover:rotate-45"
-                    aria-label="View Project"
+                    aria-label={`View Project: ${project.title}`}
                 >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
@@ -172,9 +175,9 @@ const Projects: React.FC<ProjectsProps> = ({ setCursorVariant, id }) => {
                     Selected Works
                 </h2>
                 <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-6">
-                    My <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Projects</span>
+                    My <span className="text-transparent bg-clip-text bg-linear-to-r from-yellow-400 to-orange-500">Projects</span>
                 </h2>
-                <div className="w-px h-16 bg-gradient-to-b from-yellow-500/50 to-transparent"></div>
+                <div className="w-px h-16 bg-linear-to-b from-yellow-500/50 to-transparent"></div>
             </div>
 
             {/* Projects Grid */}

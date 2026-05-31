@@ -25,6 +25,8 @@ const AnimatedCounter = ({ value, duration = 2000, start = false }: { value: num
   const [count, setCount] = useState(0);
 
   useEffect(() => {
+    let isMounted = true;
+    
     if (!start) {
         setCount(0); // Reset count when not visible to allow replay
         return;
@@ -41,14 +43,18 @@ const AnimatedCounter = ({ value, duration = 2000, start = false }: { value: num
         const progressRatio = progress / duration;
         const ease = 1 - Math.pow(1 - progressRatio, 3);
         
-        setCount(Math.floor(ease * value));
+        if (isMounted) setCount(Math.floor(ease * value));
         animationFrameId = requestAnimationFrame(animate);
       } else {
-        setCount(value);
+        if (isMounted) setCount(value);
       }
     };
     animationFrameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrameId);
+    
+    return () => {
+      isMounted = false;
+      cancelAnimationFrame(animationFrameId);
+    };
   }, [value, duration, start]);
 
   return <>{count}</>;
@@ -62,16 +68,24 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchData = async () => {
       try {
-        const response = await fetch(`https://leetcode-stats-api.herokuapp.com/${LEETCODE_USERNAME}`);
+        const response = await fetch(`https://alfa-leetcode-api.onrender.com/${LEETCODE_USERNAME}/profile`, {
+          signal: controller.signal
+        });
         const result = await response.json();
-        if (result.status === 'success') {
-          setData(result);
-        } else {
+        if (result.errors || !result.totalSolved) {
           setError(true);
+        } else {
+          const totalSubs = result.totalSubmissions?.[0]?.submissions || 1;
+          const acceptedSubs = result.matchedUserStats?.acSubmissionNum?.[0]?.submissions || 0;
+          const acceptanceRate = Math.round((acceptedSubs / totalSubs) * 100);
+          setData({ ...result, acceptanceRate });
         }
-      } catch (err) {
+      } catch (err: any) {
+        if (err.name === 'AbortError') return;
+        console.error('Failed to fetch LeetCode data:', err);
         setError(true);
       } finally {
         setLoading(false);
@@ -79,6 +93,7 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
     };
 
     fetchData();
+    return () => controller.abort();
   }, []);
 
   // Intersection Observer to trigger animations EVERY time it is visible
@@ -100,10 +115,10 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
   if (error) return null;
 
   const SocialIcon = ({ href, path, label }: { href: string; path: string, label: string }) => (
-    <a
+      <a
       href={href}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
       className="p-3 bg-white/5 border border-white/10 rounded-full text-gray-400 hover:text-white hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-all duration-300 group"
       onMouseEnter={() => setCursorVariant('button')}
       onMouseLeave={() => setCursorVariant('default')}
@@ -162,9 +177,9 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
             </div>
             
             <a 
-              href={`https://leetcode.com/${LEETCODE_USERNAME}`} 
+              href={`https://alfa-leetcode-api.onrender.com/${LEETCODE_USERNAME}/profile`} 
               target="_blank" 
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-white border-b border-yellow-500 pb-1 hover:text-yellow-400 transition-colors group"
               onMouseEnter={() => setCursorVariant('button')}
               onMouseLeave={() => setCursorVariant('default')}
@@ -185,7 +200,7 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
                {/* Dynamic Background Animation */}
                <div className={`absolute top-0 -right-20 w-80 h-80 bg-yellow-600/10 rounded-full blur-[80px] pointer-events-none animate-pulse opacity-60 group-hover:opacity-100 transition-opacity duration-700 ${isInView ? 'scale-100' : 'scale-90'}`} />
                <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-orange-600/10 rounded-full blur-[80px] pointer-events-none group-hover:animate-pulse group-hover:bg-orange-600/20 transition-all duration-700" />
-               <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/0 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+               <div className="absolute inset-0 bg-linear-to-br from-white/0 via-white/0 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
                {loading ? (
                  <div className="animate-pulse space-y-6">
@@ -225,7 +240,7 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
                             </div>
                             <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                                 <div 
-                                    className="h-full bg-gradient-to-r from-teal-500 to-teal-400 rounded-full transition-all duration-[1500ms] ease-out" 
+                                    className="h-full bg-linear-to-r from-teal-500 to-teal-400 rounded-full transition-all duration-1500 ease-out" 
                                     style={{ width: isInView ? `${(data.easySolved / data.totalEasy) * 100}%` : '0%' }}
                                 ></div>
                             </div>
@@ -241,7 +256,7 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
                             </div>
                             <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                                 <div 
-                                    className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full transition-all duration-[1500ms] ease-out delay-100" 
+                                    className="h-full bg-linear-to-r from-yellow-500 to-yellow-400 rounded-full transition-all duration-1500 ease-out delay-100" 
                                     style={{ width: isInView ? `${(data.mediumSolved / data.totalMedium) * 100}%` : '0%' }}
                                 ></div>
                             </div>
@@ -257,7 +272,7 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
                             </div>
                             <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                                 <div 
-                                    className="h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full transition-all duration-[1500ms] ease-out delay-200" 
+                                    className="h-full bg-linear-to-r from-red-500 to-red-400 rounded-full transition-all duration-1500 ease-out delay-200" 
                                     style={{ width: isInView ? `${(data.hardSolved / data.totalHard) * 100}%` : '0%' }}
                                 ></div>
                             </div>

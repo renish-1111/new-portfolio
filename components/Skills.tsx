@@ -1,11 +1,42 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SKILLS } from '../constants';
 import { CursorContextType } from '../types';
+import { 
+  SiPython, 
+  SiReact, 
+  SiTypescript, 
+  SiNodedotjs, 
+  SiPostgresql, 
+  SiMongodb, 
+  SiDocker, 
+  SiJenkins, 
+  SiGit,
+  SiFrappe,
+  SiErpnext
+} from 'react-icons/si';
+import { FaServer } from 'react-icons/fa';
 
 interface SkillsProps {
   setCursorVariant: CursorContextType['setCursorVariant'];
   id?: string;
 }
+
+const getSkillIcon = (name: string) => {
+  switch (name) {
+    case 'Python': return <SiPython className="w-10 h-10" />;
+    case 'React / Next.js': return <SiReact className="w-10 h-10" />;
+    case 'TypeScript': return <SiTypescript className="w-10 h-10" />;
+    case 'Node.js / Express': return <SiNodedotjs className="w-10 h-10" />;
+    case 'Git / GitHub': return <SiGit className="w-10 h-10" />;
+    case 'PostgreSQL': return <SiPostgresql className="w-10 h-10" />;
+    case 'MongoDB': return <SiMongodb className="w-10 h-10" />;
+    case 'Docker': return <SiDocker className="w-10 h-10" />;
+    case 'Jenkins': return <SiJenkins className="w-10 h-10" />;
+    case 'Frappe': return <SiFrappe className="w-10 h-10" />;
+    case 'ERPNext': return <SiErpnext className="w-10 h-10" />;
+    default: return <FaServer className="w-10 h-10" />;
+  }
+};
 
 const Skills: React.FC<SkillsProps> = ({ setCursorVariant, id }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -51,7 +82,7 @@ const Skills: React.FC<SkillsProps> = ({ setCursorVariant, id }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {SKILLS.map((skill, idx) => (
             <div 
-                key={idx}
+                key={skill.name}
                 className={`group relative bg-[#111] hover:bg-[#161616] border border-white/5 hover:border-yellow-500/30 rounded-xl p-6 transition-all duration-500 hover:-translate-y-2 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
                 style={{ transitionDelay: isVisible ? `${idx * 100}ms` : '0ms' }}
                 onMouseEnter={() => setCursorVariant('button')}
@@ -66,8 +97,8 @@ const Skills: React.FC<SkillsProps> = ({ setCursorVariant, id }) => {
                         <span className="text-xs font-mono text-yellow-500/70 tracking-wider uppercase">{skill.category}</span>
                         <h3 className="text-2xl font-bold text-white group-hover:text-yellow-100 transition-colors">{skill.name}</h3>
                     </div>
-                    <div className="text-4xl font-bold text-white/5 group-hover:text-white/10 transition-colors font-mono">
-                        {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+                    <div className="text-white/10 group-hover:text-yellow-500/50 transition-colors duration-500 transform group-hover:scale-110 group-hover:rotate-12">
+                        {getSkillIcon(skill.name)}
                     </div>
                 </div>
 

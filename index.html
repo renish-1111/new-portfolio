@@ -25,10 +25,28 @@
     <meta property="twitter:description" content="Interactive 3D Portfolio featuring AI Chat, LeetCode stats, and immersive projects." />
     <meta property="twitter:image" content="https://ui-avatars.com/api/?name=Renish+Dev&background=0a0a0a&color=EAB308&size=1200&font-size=0.33" />
 
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://renishponkiya.tech/" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image" href="https://i.ibb.co/Nnmkp9Sw/flash.png">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/Nnmkp9Sw/flash.png">
+    
+    <style>
+      /* Fallback font to prevent FOIT (Flash of Invisible Text) */
+      @font-face {
+        font-family: 'Space Grotesk Fallback';
+        src: local('Arial');
+        size-adjust: 100%;
+        ascent-override: normal;
+        descent-override: normal;
+        line-gap-override: normal;
+      }
+      body {
+        font-family: 'Space Grotesk', 'Space Grotesk Fallback', sans-serif;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

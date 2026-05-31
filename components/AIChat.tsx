@@ -22,7 +22,7 @@ const AIChat: React.FC<AIChatProps> = ({ setCursorVariant }) => {
     try {
         chatSessionRef.current = createChatSession();
     } catch (e) {
-        console.error("Failed to initialize chat session:", e);
+        // Initialization failed, will retry on send
     }
   }, []);
 
@@ -34,11 +34,27 @@ const AIChat: React.FC<AIChatProps> = ({ setCursorVariant }) => {
     if (isOpen) scrollToBottom();
   }, [messages, isOpen]);
 
+  // Handle escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
+  const sanitizeInput = (str: string) => {
+    return str.replace(/[<>]/g, '').trim();
+  };
+
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+    const sanitized = sanitizeInput(inputValue);
+    if (!sanitized || isLoading) return;
 
-    const userMsg: ChatMessage = { role: 'user', text: inputValue, timestamp: new Date() };
+    const userMsg: ChatMessage = { role: 'user', text: sanitized, timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setInputValue("");
     setIsLoading(true);
@@ -57,7 +73,6 @@ const AIChat: React.FC<AIChatProps> = ({ setCursorVariant }) => {
       const modelMsg: ChatMessage = { role: 'model', text: responseText, timestamp: new Date() };
       setMessages(prev => [...prev, modelMsg]);
     } catch (error) {
-      console.error("Chat Error:", error);
       setMessages(prev => [...prev, { role: 'model', text: "Network error or API limit reached.", timestamp: new Date(), isError: true }]);
     } finally {
       setIsLoading(false);
@@ -96,7 +111,7 @@ const AIChat: React.FC<AIChatProps> = ({ setCursorVariant }) => {
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                     {messages.map((msg, idx) => (
-                        <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div key={`${msg.timestamp.getTime()}-${idx}`} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div 
                                 className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed shadow-lg ${
                                     msg.role === 'user' 
@@ -125,7 +140,9 @@ const AIChat: React.FC<AIChatProps> = ({ setCursorVariant }) => {
                 {/* Input */}
                 <form onSubmit={handleSend} className="p-4 border-t border-white/5 bg-black/20">
                     <div className="relative group">
+                        <label htmlFor="chat-input" className="sr-only">Ask a question</label>
                         <input
+                            id="chat-input"
                             type="text"
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
@@ -136,6 +153,7 @@ const AIChat: React.FC<AIChatProps> = ({ setCursorVariant }) => {
                         />
                         <button 
                             type="submit"
+                            aria-label="Send message"
                             disabled={isLoading}
                             className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-yellow-500 hover:text-yellow-300 disabled:opacity-30 transition-colors"
                         >
