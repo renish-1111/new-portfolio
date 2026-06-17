@@ -11,6 +11,9 @@ export default {
       fontFamily: {
         sans: ['Space Grotesk', 'sans-serif'],
       },
+      animation: {
+        'spin-fast': 'spin 4s linear infinite',
+      }
     },
   },
   plugins: [],

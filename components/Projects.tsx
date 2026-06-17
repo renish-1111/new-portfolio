@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { PROJECTS } from '../constants';
 import { CursorContextType, Project } from '../types';
@@ -21,6 +20,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
   const imageRef = useRef<HTMLImageElement>(null);
   
   const [isVisible, setIsVisible] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -66,6 +66,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
   };
 
   const handleMouseLeave = () => {
+    setIsHovered(false);
     if (!cardRef.current || !glowRef.current || !contentRef.current || !imageRef.current) return;
     
     // Reset transforms
@@ -78,6 +79,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
   };
 
   const handleMouseEnter = () => {
+    setIsHovered(true);
     setCursorVariant('button');
   };
 
@@ -93,41 +95,69 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
-        className="group relative w-full bg-[#0f0f0f] border border-white/5 rounded-2xl overflow-hidden transition-shadow duration-300 hover:shadow-2xl hover:shadow-yellow-900/10 will-change-transform"
+        className="group relative w-full glass-card overflow-hidden transition-shadow duration-500 hover:shadow-2xl hover:shadow-yellow-900/10 will-change-transform"
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Spotlight Glow Overlay */}
         <div 
             ref={glowRef}
-            className="absolute inset-0 pointer-events-none z-20 transition-opacity duration-300 opacity-0 mix-blend-overlay"
+            className="absolute inset-0 pointer-events-none z-20 transition-opacity duration-500 opacity-0 mix-blend-overlay"
         />
 
         {/* Image Section (16:9 Aspect Ratio) */}
-        <div className="relative w-full aspect-video overflow-hidden border-b border-white/5 bg-[#1a1a1a]">
+        <div className="relative w-full aspect-video overflow-hidden border-b border-white/5 bg-transparent">
             <div className="absolute inset-0 bg-gray-800 animate-pulse z-0" /> {/* Loading placeholder */}
-            <img 
-                ref={imageRef}
-                src={project.image} 
-                alt={project.title}
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover z-10 transition-transform duration-700 will-change-transform"
-            />
+            
+            <div className="relative w-full h-full z-10 overflow-hidden">
+                {/* Main Image */}
+                <img 
+                    ref={imageRef}
+                    src={project.image} 
+                    alt={project.title}
+                    loading="lazy"
+                    width={640}
+                    height={360}
+                    className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 will-change-transform ${isHovered ? 'scale-110' : 'scale-100'}`}
+                />
+                
+                {/* Glitch Layer 1 - Cyan (Only visible on hover) */}
+                <img 
+                    src={project.image} 
+                    alt=""
+                    aria-hidden="true"
+                    className={`absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-50 transition-all duration-100 will-change-transform ${isHovered ? 'translate-x-1 -translate-y-1 animate-[glitch1_0.2s_infinite]' : 'opacity-0'}`}
+                    style={{ filter: 'hue-rotate(90deg) saturate(200%)' }}
+                />
+                
+                {/* Glitch Layer 2 - Red/Magenta (Only visible on hover) */}
+                <img 
+                    src={project.image} 
+                    alt=""
+                    aria-hidden="true"
+                    className={`absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-50 transition-all duration-100 will-change-transform ${isHovered ? '-translate-x-1 translate-y-1 animate-[glitch2_0.3s_infinite]' : 'opacity-0'}`}
+                    style={{ filter: 'hue-rotate(-90deg) saturate(200%)' }}
+                />
+
+                {/* Scanline overlay */}
+                <div className={`absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] pointer-events-none transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
+            </div>
+
             {/* Image Overlay Gradient */}
-            <div className="absolute inset-0 bg-linear-to-t from-[#0f0f0f] to-transparent opacity-60 z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] to-transparent opacity-60 z-20 pointer-events-none" />
             
             {/* Top Highlight */}
-            <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/20 to-transparent z-20 opacity-50" />
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent z-20 opacity-50 pointer-events-none" />
         </div>
 
         {/* Content Section */}
-        <div ref={contentRef} className="p-6 md:p-8 relative z-10 bg-[#0f0f0f] transition-transform duration-300 ease-out">
+        <div ref={contentRef} className="p-6 md:p-8 relative z-10 bg-transparent transition-transform duration-500 ease-out">
             <div className="flex justify-between items-start mb-4">
                 <h3 className="text-2xl font-bold text-white group-hover:text-yellow-400 transition-colors">{project.title}</h3>
                 <a 
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-full bg-white/5 text-gray-400 hover:text-white hover:bg-yellow-500 transition-all duration-300 transform hover:scale-110 group-hover:rotate-45"
+                    className="p-2 rounded-full bg-white/5 text-gray-400 hover:text-white hover:bg-yellow-500 transition-all duration-500 transform hover:scale-110 group-hover:rotate-45"
                     aria-label={`View Project: ${project.title}`}
                 >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,7 +189,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
 
 const Projects: React.FC<ProjectsProps> = ({ setCursorVariant, id }) => {
   return (
-    <section id={id} className="py-24 px-6 md:px-20 bg-[#0a0a0a] relative overflow-hidden">
+    <section id={id} className="py-24 px-6 md:px-20 bg-transparent relative overflow-hidden">
         
         {/* Grid Background Pattern */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
@@ -175,9 +205,9 @@ const Projects: React.FC<ProjectsProps> = ({ setCursorVariant, id }) => {
                     Selected Works
                 </h2>
                 <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-6">
-                    My <span className="text-transparent bg-clip-text bg-linear-to-r from-yellow-400 to-orange-500">Projects</span>
+                    My <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Projects</span>
                 </h2>
-                <div className="w-px h-16 bg-linear-to-b from-yellow-500/50 to-transparent"></div>
+                <div className="w-px h-16 bg-gradient-to-b from-yellow-500/50 to-transparent"></div>
             </div>
 
             {/* Projects Grid */}
@@ -192,6 +222,28 @@ const Projects: React.FC<ProjectsProps> = ({ setCursorVariant, id }) => {
                 ))}
             </div>
         </div>
+
+        {/* Global Keyframes for Glitch Animation */}
+        <style>
+          {`
+            @keyframes glitch1 {
+              0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); }
+              20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); }
+              40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 2px); }
+              60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+              80% { clip-path: inset(10% 0 70% 0); transform: translate(-1px, 1px); }
+              100% { clip-path: inset(30% 0 50% 0); transform: translate(1px, -1px); }
+            }
+            @keyframes glitch2 {
+              0% { clip-path: inset(10% 0 60% 0); transform: translate(2px, -1px); }
+              20% { clip-path: inset(80% 0 5% 0); transform: translate(-2px, 1px); }
+              40% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 2px); }
+              60% { clip-path: inset(70% 0 10% 0); transform: translate(-2px, -2px); }
+              80% { clip-path: inset(20% 0 50% 0); transform: translate(1px, 1px); }
+              100% { clip-path: inset(50% 0 30% 0); transform: translate(-1px, -1px); }
+            }
+          `}
+        </style>
     </section>
   );
 };

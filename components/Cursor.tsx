@@ -60,16 +60,37 @@ const Cursor: React.FC<CursorProps> = ({ variant }) => {
 
     // Animation loop for the smooth trailing effect
     let animationFrameId: number;
+    let prevPoints: {x: number, y: number}[] = [];
     
     const animateTrailer = () => {
       // Linear interpolation (Lerp) for smooth following
-      const speed = 0.15; // Higher = faster catch up, Lower = smoother lag
+      const speed = 0.2; // Higher = faster catch up, Lower = smoother lag
       
       trailerX.current += (mouseX.current - trailerX.current) * speed;
       trailerY.current += (mouseY.current - trailerY.current) * speed;
 
+      // Keep track of previous points for the trailing blur effect
+      prevPoints.push({x: trailerX.current, y: trailerY.current});
+      if(prevPoints.length > 8) prevPoints.shift();
+
       if (trailerRef.current) {
         trailerRef.current.style.transform = `translate3d(${trailerX.current}px, ${trailerY.current}px, 0) translate(-50%, -50%)`;
+        
+        // Calculate stretch/squeeze based on movement speed
+        const deltaX = mouseX.current - trailerX.current;
+        const deltaY = mouseY.current - trailerY.current;
+        const velocity = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        // Squeeze cursor when moving fast
+        if (cursorRef.current && variant === 'default') {
+           const scaleY = Math.max(0.6, 1 - (velocity * 0.005));
+           const scaleX = Math.min(1.4, 1 + (velocity * 0.005));
+           
+           // Calculate angle for the stretch
+           const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+           
+           cursorRef.current.style.transform = `translate3d(${mouseX.current}px, ${mouseY.current}px, 0) translate(-50%, -50%) rotate(${angle}deg) scale(${scaleX}, ${scaleY})`;
+        }
       }
 
       animationFrameId = requestAnimationFrame(animateTrailer);
@@ -83,17 +104,16 @@ const Cursor: React.FC<CursorProps> = ({ variant }) => {
       window.removeEventListener("mouseleave", onMouseLeave);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isMobile]);
+  }, [isMobile, variant]);
 
   const getVariantClasses = () => {
     switch (variant) {
       case 'button':
-        // mix-blend-difference ensures high visibility on any background
-        return 'w-16 h-16 bg-white mix-blend-difference opacity-100 border-none';
+        return 'w-16 h-16 bg-white mix-blend-difference opacity-100 border-none scale-100';
       case 'text':
-        return 'w-24 h-24 border-2 border-yellow-400 bg-transparent opacity-100';
+        return 'w-24 h-24 border border-yellow-400 bg-yellow-500/10 backdrop-blur-[2px] opacity-100 scale-100 mix-blend-screen';
       default:
-        return 'w-4 h-4 bg-yellow-400 opacity-80';
+        return 'w-3 h-3 bg-white mix-blend-difference shadow-[0_0_15px_rgba(255,255,255,0.8)] opacity-100';
     }
   };
 
@@ -102,21 +122,22 @@ const Cursor: React.FC<CursorProps> = ({ variant }) => {
 
   return (
     <>
-      {/* Main cursor dot - Updates instantly via Event Listener */}
+      {/* Main cursor dot */}
       <div
         ref={cursorRef}
-        className={`fixed top-0 left-0 pointer-events-none rounded-full z-[9999] transition-[width,height,background-color,opacity,border] duration-300 ease-out ${getVariantClasses()}`}
+        className={`fixed top-0 left-0 pointer-events-none rounded-full z-[9999] transition-[width,height,background-color,border-radius,backdrop-filter] duration-300 ease-out ${getVariantClasses()}`}
         style={{ 
             willChange: 'transform',
             top: 0,
-            left: 0
+            left: 0,
+            transformOrigin: 'center'
         }}
       />
       
-      {/* Trailing ring - Updates via RAF Loop */}
+      {/* Trailing ring */}
       <div
         ref={trailerRef}
-        className={`fixed top-0 left-0 w-8 h-8 border border-yellow-400/50 rounded-full pointer-events-none z-[9998] transition-opacity duration-300 ${variant === 'default' ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed top-0 left-0 w-10 h-10 border border-white mix-blend-difference rounded-full pointer-events-none z-[9998] transition-[opacity,width,height] duration-300 ${variant === 'default' ? 'opacity-30' : 'opacity-0 scale-50'}`}
         style={{ 
             willChange: 'transform',
             top: 0,

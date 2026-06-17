@@ -1,5 +1,7 @@
+import MagneticButton from './MagneticButton';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import SkillOrbit from './SkillOrbit';
 import { CursorContextType } from '../types';
 
 interface HeroProps {
@@ -165,7 +167,7 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
   }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-black">
+    <section className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-transparent">
       {/* Interactive Canvas Background */}
       <canvas 
         ref={canvasRef} 
@@ -177,65 +179,69 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-yellow-900/20 to-transparent pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent pointer-events-none" />
 
-      {/* Main Content Interface */}
-      <div className="z-10 relative p-6 md:p-20 border-x border-white/5 bg-black/10 backdrop-blur-[2px] flex flex-col items-center text-center max-w-5xl w-full mx-4 md:mx-0">
+      {/* Main Content Interface - 2 Column on Large Screens */}
+      <div className="z-10 relative p-6 md:p-20 w-full h-full flex flex-col lg:flex-row items-center justify-center lg:justify-between max-w-7xl mx-auto gap-12 lg:gap-8 mt-16 lg:mt-0">
         
         {/* Decorative Top HUD */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-2">
+        <div className="absolute top-10 lg:top-1/4 left-1/2 lg:left-0 -translate-x-1/2 lg:translate-x-20 -translate-y-1/2 flex gap-2">
             <div className="w-20 h-1 bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.8)]"></div>
             <div className="w-2 h-1 bg-white/50"></div>
             <div className="w-2 h-1 bg-white/50"></div>
         </div>
 
-        <h2 className="text-yellow-500 font-mono text-[10px] md:text-sm tracking-[0.4em] md:tracking-[0.8em] uppercase mb-6 animate-pulse">
-          System Online // V.11.11
-        </h2>
-        
-        <h1 
-          className="text-4xl sm:text-6xl md:text-8xl lg:text-[9rem] font-mono font-bold text-white leading-none tracking-tighter select-none mix-blend-overlay break-words max-w-full min-h-[1.1em]"
-          onMouseEnter={() => {
-            scramble();
-            setCursorVariant('text');
-          }}
-          onMouseLeave={() => setCursorVariant('default')}
-        >
-          {displayText}
-        </h1>
-
-        <div className="h-px w-32 bg-gradient-to-r from-transparent via-yellow-500 to-transparent my-8 opacity-50" />
-
-        <p className="text-gray-300 text-base md:text-xl font-light max-w-2xl leading-relaxed mb-10">
-          <span className="text-yellow-400 font-bold">&gt;</span> Full Stack Engineer.<br/>
-          <span className="text-yellow-400 font-bold">&gt;</span> AI/ML Enthusiast.<br/>
-          <span className="text-yellow-400 font-bold">&gt;</span> Creative Problem Solver.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-6 w-full justify-center items-center">
-          <a 
-            href="#projects"
-            className="group relative w-full sm:w-auto px-8 py-4 bg-transparent rounded-full border border-white/10 overflow-hidden transition-all hover:border-yellow-500/50 hover:scale-105 active:scale-95 text-center ease-huly duration-500"
-            onMouseEnter={() => setCursorVariant('button')}
-            onMouseLeave={() => setCursorVariant('default')}
-          >
-             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-             <div className="absolute inset-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-            <span className="relative text-yellow-400 font-mono text-sm uppercase tracking-widest group-hover:text-yellow-300">
-              Initialize Projects
-            </span>
-          </a>
+        {/* Left Column: Text & CTAs */}
+        <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full lg:w-1/2 z-20">
+          <h2 className="text-yellow-500 font-mono text-[10px] md:text-sm tracking-[0.4em] md:tracking-[0.8em] uppercase mb-6 animate-pulse">
+            System Online // V.11.11
+          </h2>
           
-          <a 
-            href="#contact"
-            className="group w-full sm:w-auto px-8 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all text-white font-mono text-sm uppercase tracking-widest text-center hover:scale-105 active:scale-95 ease-huly duration-500"
-            onMouseEnter={() => setCursorVariant('button')}
+          <h1 
+            onMouseEnter={() => setCursorVariant('text')}
             onMouseLeave={() => setCursorVariant('default')}
+            className="text-4xl sm:text-6xl md:text-7xl lg:text-[7rem] font-mono font-bold text-white leading-none tracking-tighter select-none mix-blend-overlay break-words max-w-full mb-8 lg:mb-4 drop-shadow-2xl"
+            style={{ textShadow: '0 0 40px rgba(255,255,255,0.2)' }}
           >
-            Contact Protocol
-          </a>
+            {displayText}
+          </h1>
+
+          <p className="text-gray-400 font-mono text-xs md:text-sm tracking-wider max-w-md mb-10 leading-relaxed border-l-2 border-yellow-500/50 pl-4">
+            <span className="text-yellow-400 font-bold">&gt;</span> Full Stack Engineer.<br/>
+            <span className="text-yellow-400 font-bold">&gt;</span> AI/ML Enthusiast.<br/>
+            <span className="text-yellow-400 font-bold">&gt;</span> Creative Problem Solver.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
+            <a 
+              href="#projects"
+              className="group relative px-8 py-4 rounded-full overflow-hidden w-full sm:w-auto text-center hover:scale-105 active:scale-95 ease-huly duration-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] hover:shadow-[0_0_50px_rgba(234,179,8,0.6)] border border-yellow-500/50"
+              onMouseEnter={() => setCursorVariant('button')}
+              onMouseLeave={() => setCursorVariant('default')}
+            >
+              <div className="absolute inset-0 bg-yellow-500 transition-transform duration-500 group-hover:scale-110" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-white/20 transition-opacity duration-300" />
+              <span className="relative z-10 text-black font-bold tracking-widest text-sm uppercase">
+                Initialize Projects
+              </span>
+            </a>
+            
+            <a 
+              href="#contact"
+              className="group w-full sm:w-auto px-8 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all text-white font-mono text-sm uppercase tracking-widest text-center hover:scale-105 active:scale-95 ease-huly duration-500"
+              onMouseEnter={() => setCursorVariant('button')}
+              onMouseLeave={() => setCursorVariant('default')}
+            >
+              Contact Protocol
+            </a>
+          </div>
+        </div>
+
+        {/* Right Column: 3D Orbit */}
+        <div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center z-10 scale-50 sm:scale-75 lg:scale-100 mt-10 lg:mt-0">
+           <SkillOrbit />
         </div>
 
         {/* Decorative Bottom HUD */}
-        <div className="absolute bottom-0 right-0 p-4 flex flex-col items-end gap-1 opacity-50 hidden sm:flex">
+        <div className="absolute bottom-10 right-10 p-4 flex flex-col items-end gap-1 opacity-50 hidden lg:flex">
             <div className="text-[10px] text-yellow-500 font-mono">POWER: MAX</div>
             <div className="flex gap-1 mt-1">
                 <div className="w-1 h-1 bg-yellow-500 rounded-full animate-ping"></div>
