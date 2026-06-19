@@ -1,7 +1,7 @@
 import MagneticButton from './MagneticButton';
 
-import React, { useRef, useEffect, useCallback } from 'react';
-import SkillOrbit from './SkillOrbit';
+import React, { useRef, useEffect, useCallback, lazy, Suspense } from 'react';
+const SkillOrbit = lazy(() => import('./SkillOrbit'));
 import { CursorContextType } from '../types';
 
 interface HeroProps {
@@ -9,6 +9,7 @@ interface HeroProps {
 }
 
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+[]{}|;:,.<>?";
+const IS_MOBILE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 
 const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,6 +21,10 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
     if (!el) return;
 
     let iteration = 0;
+    // Faster step on mobile so the effect resolves sooner (less CPU time)
+    const step = IS_MOBILE ? 1 : 1 / 3;
+    const tickMs = IS_MOBILE ? 50 : 30;
+
     const interval = setInterval(() => {
       el.textContent = targetText
         .split("")
@@ -30,8 +35,8 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
         .join("");
 
       if (iteration >= targetText.length) clearInterval(interval);
-      iteration += 1 / 3;
-    }, 30);
+      iteration += step;
+    }, tickMs);
   }, [targetText]);
 
   useEffect(() => {
@@ -255,7 +260,9 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
 
         {/* Right Column: 3D Orbit — hidden on small mobile, shown on md+ */}
         <div className="hidden md:flex w-full lg:w-1/2 items-center justify-center z-10 scale-75 md:scale-90 lg:scale-100 mt-6 lg:mt-0">
-           <SkillOrbit />
+           <Suspense fallback={<div className="w-[500px] h-[500px] max-w-full" />}>
+             <SkillOrbit />
+           </Suspense>
         </div>
 
         {/* Decorative Bottom HUD */}

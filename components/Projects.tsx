@@ -111,16 +111,17 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
                     src={project.image} 
                     alt={project.title}
                     loading="lazy"
+                    decoding="async"
                     width={640}
                     height={360}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 will-change-transform group-hover:scale-110"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 
                 <img 
                     src={project.image} 
                     alt=""
                     aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-0 group-hover:opacity-50 transition-all duration-100 will-change-transform group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:animate-[glitch1_0.2s_infinite]"
+                    className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-0 group-hover:opacity-50 transition-all duration-100 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:animate-[glitch1_0.2s_infinite] hidden md:block"
                     style={{ filter: 'hue-rotate(90deg) saturate(200%)' }}
                 />
                 
@@ -128,7 +129,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
                     src={project.image} 
                     alt=""
                     aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-0 group-hover:opacity-50 transition-all duration-100 will-change-transform group-hover:-translate-x-1 group-hover:translate-y-1 group-hover:animate-[glitch2_0.3s_infinite]"
+                    className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-0 group-hover:opacity-50 transition-all duration-100 group-hover:-translate-x-1 group-hover:translate-y-1 group-hover:animate-[glitch2_0.3s_infinite] hidden md:block"
                     style={{ filter: 'hue-rotate(-90deg) saturate(200%)' }}
                 />
 

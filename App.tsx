@@ -15,6 +15,46 @@ import { CursorContextType } from './types';
 import { SOCIAL_LINKS } from './constants';
 import { onLenisScroll } from './utils/lenis';
 
+// Minimal section placeholder shown while lazy chunk loads in
+const SectionFallback: React.FC<{ minH?: string }> = ({ minH = '100vh' }) => (
+  <div style={{ minHeight: minH, background: 'transparent' }} />
+);
+
+// Hook that returns true once the ref element has entered the viewport.
+// Used to defer rendering off-screen sections on mobile.
+function useInViewOnce(ref: React.RefObject<Element | null>): boolean {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    if (inView) return;
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
+      { rootMargin: '200px' }   // start loading 200px before it enters view
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [inView, ref]);
+  return inView;
+}
+
+// Wrapper that renders a placeholder div until the section scrolls near the viewport,
+// then mounts its children. This prevents off-screen sections from consuming
+// JS parse/render budget on initial load — especially important on mobile.
+const DeferredSection: React.FC<{
+  id: string;
+  minH: string;
+  children: React.ReactNode;
+}> = ({ id, minH, children }) => {
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInViewOnce(ref);
+  return (
+    <section id={id} ref={ref} style={{ minHeight: inView ? undefined : minH }}>
+      {inView ? children : null}
+    </section>
+  );
+};
+
 const App: React.FC = () => {
   const [cursorVariant, setCursorVariant] = useState<CursorContextType['cursorVariant']>('default');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -195,27 +235,48 @@ const App: React.FC = () => {
         </div>
 
         <main>
-          <Suspense fallback={null}>
+          {/* Home — always rendered immediately (above the fold) */}
           <section id="home">
-            <Home setCursorVariant={setCursorVariant} />
+            <Suspense fallback={<SectionFallback />}>
+              <Home setCursorVariant={setCursorVariant} />
+            </Suspense>
           </section>
-          <section id="about">
-            <About setCursorVariant={setCursorVariant} />
-          </section>
-          <section id="experience">
-            <ExperiencePage setCursorVariant={setCursorVariant} />
-          </section>
-          <section id="projects">
-            <ProjectsPage setCursorVariant={setCursorVariant} />
-          </section>
-          <section id="contact">
-            <ContactPage setCursorVariant={setCursorVariant} />
-          </section>
-          </Suspense>
+
+          {/* Remaining sections — each has its own Suspense + deferred sentinel */}
+          <DeferredSection id="about" minH="80vh">
+            <ErrorBoundary>
+              <Suspense fallback={<SectionFallback minH="80vh" />}>
+                <About setCursorVariant={setCursorVariant} />
+              </Suspense>
+            </ErrorBoundary>
+          </DeferredSection>
+
+          <DeferredSection id="experience" minH="60vh">
+            <ErrorBoundary>
+              <Suspense fallback={<SectionFallback minH="60vh" />}>
+                <ExperiencePage setCursorVariant={setCursorVariant} />
+              </Suspense>
+            </ErrorBoundary>
+          </DeferredSection>
+
+          <DeferredSection id="projects" minH="80vh">
+            <ErrorBoundary>
+              <Suspense fallback={<SectionFallback minH="80vh" />}>
+                <ProjectsPage setCursorVariant={setCursorVariant} />
+              </Suspense>
+            </ErrorBoundary>
+          </DeferredSection>
+
+          <DeferredSection id="contact" minH="60vh">
+            <ErrorBoundary>
+              <Suspense fallback={<SectionFallback minH="60vh" />}>
+                <ContactPage setCursorVariant={setCursorVariant} />
+              </Suspense>
+            </ErrorBoundary>
+          </DeferredSection>
 
           <footer className="py-12 text-center text-gray-600 text-sm border-t border-white/5 bg-transparent">
               <div className="flex flex-wrap justify-center gap-4 mb-8 px-6">
-                  {/* Footer Socials */}
                   {Object.entries(SOCIAL_LINKS).map(([key, url]) => (
                       key !== 'email' && key !== 'leetcode' && (
                           <MagneticButton key={key} href={url} className="text-gray-500 hover:text-yellow-500 transition-colors uppercase text-xs font-mono tracking-widest p-2">

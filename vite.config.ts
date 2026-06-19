@@ -4,42 +4,53 @@ import react from '@vitejs/plugin-react';
 import compression from 'vite-plugin-compression';
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      server: {
-        port: 3000,
-        host: '0.0.0.0',
+  const env = loadEnv(mode, '.', '');
+  return {
+    server: {
+      port: 3000,
+      host: '0.0.0.0',
+    },
+    plugins: [
+      react(),
+      // Gzip + Brotli for production — Netlify/Vercel serve pre-compressed files
+      compression({ algorithm: 'gzip', ext: '.gz' }),
+      compression({ algorithm: 'brotliCompress', ext: '.br' }),
+    ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, '.'),
       },
-      plugins: [
-        react(),
-        compression({ algorithm: 'gzip', ext: '.gz' }),
-        compression({ algorithm: 'brotliCompress', ext: '.br' }),
-      ],
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
-        }
-      },
-      build: {
-        rollupOptions: {
-          output: {
-            manualChunks: {
-              vendor: ['react', 'react-dom'],
-              icons: ['react-icons'],
-              github: ['react-github-calendar'],
-              lenis: ['lenis'],
+    },
+    build: {
+      // Inject <modulepreload> tags for async chunks so the browser fetches them early
+      modulePreload: { polyfill: true },
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Core React — always needed
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+              return 'vendor';
             }
-          }
-        },
-        chunkSizeWarningLimit: 1000,
-        cssCodeSplit: true,
-        minify: 'terser',
-        terserOptions: {
-          compress: {
-            drop_console: true,   // strips console.log in production
-            drop_debugger: true,
+            // Lenis smooth scroll — needed on desktop only, small chunk
+            if (id.includes('node_modules/lenis')) {
+              return 'lenis';
+            }
+            // GitHub calendar — only on About page
+            if (id.includes('node_modules/react-github-calendar')) {
+              return 'github';
+            }
+            // react-icons — large library, isolate it
+            if (id.includes('node_modules/react-icons')) {
+              return 'icons';
+            }
           },
         },
-      }
-    };
+      },
+      chunkSizeWarningLimit: 800,
+      cssCodeSplit: true,
+      // Use esbuild for minification (built-in, no extra dep, faster than terser)
+      minify: 'esbuild',
+      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+    },
+  };
 });
