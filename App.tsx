@@ -13,6 +13,7 @@ import MagneticButton from './components/MagneticButton';
 import ScrollLaser from './components/ScrollLaser';
 import { CursorContextType } from './types';
 import { SOCIAL_LINKS } from './constants';
+import { onLenisScroll } from './utils/lenis';
 
 const App: React.FC = () => {
   const [cursorVariant, setCursorVariant] = useState<CursorContextType['cursorVariant']>('default');
@@ -21,14 +22,7 @@ const App: React.FC = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Handle scroll effect for navbar background
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  useEffect(() => onLenisScroll((scroll) => setScrolled(scroll > 50)), []);
 
   // Lock body scroll when mobile menu is open, handle escape key and focus trap
   useEffect(() => {

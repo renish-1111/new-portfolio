@@ -4,7 +4,6 @@ import {
   SiPostgresql, SiMongodb, SiDocker, SiJenkins,
   SiGit, SiFrappe, SiErpnext, SiTailwindcss
 } from 'react-icons/si';
-import { createRoot } from 'react-dom/client';
 import { playPowerUpSound, playPowerDownSound, playHoverSound } from '../utils/sound';
 
 const CX = 250;
@@ -78,6 +77,7 @@ function getPos(startAngle: number, orbitAngle: number, rotateDeg: number) {
 }
 
 const SkillOrbit: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isHyperSpeed, setIsHyperSpeed] = useState(false);
   const isHyperSpeedRef = useRef(false);
   const speedRef = useRef(1);
@@ -107,10 +107,13 @@ const SkillOrbit: React.FC = () => {
   };
 
   useEffect(() => {
-    let animFrame: number;
+    let animFrame = 0;
     let lastTime = performance.now();
+    let isRunning = false;
 
     const update = (time: number) => {
+      if (!isRunning) return;
+
       const delta = time - lastTime;
       lastTime = time;
 
@@ -118,11 +121,9 @@ const SkillOrbit: React.FC = () => {
       speedRef.current += (targetSpeed - speedRef.current) * 0.05;
       const s = speedRef.current;
 
-      // lerp icon scale smoothly
       iconScaleRef.current += (targetScaleRef.current - iconScaleRef.current) * 0.04;
       const sc = iconScaleRef.current;
 
-      // lerp glow radius smoothly
       glowRadiusRef.current += (targetGlowRef.current - glowRadiusRef.current) * 0.04;
       if (glowCircleRef.current) {
         glowCircleRef.current.setAttribute('r', String(Math.round(glowRadiusRef.current)));
@@ -142,12 +143,37 @@ const SkillOrbit: React.FC = () => {
       animFrame = requestAnimationFrame(update);
     };
 
-    animFrame = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(animFrame);
+    const startLoop = () => {
+      if (isRunning) return;
+      isRunning = true;
+      lastTime = performance.now();
+      animFrame = requestAnimationFrame(update);
+    };
+
+    const stopLoop = () => {
+      isRunning = false;
+      cancelAnimationFrame(animFrame);
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? startLoop() : stopLoop()),
+      { threshold: 0 }
+    );
+
+    const container = containerRef.current;
+    if (container) observer.observe(container);
+
+    startLoop();
+
+    return () => {
+      observer.disconnect();
+      stopLoop();
+    };
   }, []);
 
   return (
     <div
+      ref={containerRef}
       className="relative mx-auto select-none"
       style={{ width: SVG_SIZE, height: SVG_SIZE, maxWidth: '100%' }}
     >

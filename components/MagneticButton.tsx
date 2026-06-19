@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { playHoverSound, playClickSound } from '../utils/sound';
 
 interface MagneticButtonProps {
@@ -19,29 +19,29 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
   onMouseLeave
 }) => {
   const buttonRef = useRef<HTMLAnchorElement | HTMLButtonElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
-    if (!buttonRef.current) return;
+    const el = buttonRef.current;
+    if (!el) return;
     
     const { clientX, clientY } = e;
-    const { height, width, left, top } = buttonRef.current.getBoundingClientRect();
+    const { height, width, left, top } = el.getBoundingClientRect();
     
-    const middleX = clientX - (left + width / 2);
-    const middleY = clientY - (top + height / 2);
-    
-    // Magnetic pull strength (0.3 = 30% pull towards cursor)
-    setPosition({ x: middleX * 0.3, y: middleY * 0.3 });
+    const x = (clientX - (left + width / 2)) * 0.3;
+    const y = (clientY - (top + height / 2)) * 0.3;
+    el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
   };
 
   const handleMouseEnter = () => {
     playHoverSound();
-    if (onMouseEnter) onMouseEnter();
+    onMouseEnter?.();
   };
 
   const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 });
-    if (onMouseLeave) onMouseLeave();
+    if (buttonRef.current) {
+      buttonRef.current.style.transform = 'translate3d(0px, 0px, 0)';
+    }
+    onMouseLeave?.();
   };
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
@@ -59,7 +59,6 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
         onMouseEnter={handleMouseEnter}
         onClick={handleClick as any}
         className={`inline-block transition-transform duration-300 ease-out cursor-none ${className}`}
-        style={{ transform: `translate3d(${position.x}px, ${position.y}px, 0)` }}
       >
         {children}
       </a>
@@ -74,7 +73,6 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
       onMouseEnter={handleMouseEnter}
       onClick={handleClick as any}
       className={`inline-block transition-transform duration-300 ease-out cursor-none ${className}`}
-      style={{ transform: `translate3d(${position.x}px, ${position.y}px, 0)` }}
     >
       {children}
     </button>

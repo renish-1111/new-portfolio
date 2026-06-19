@@ -84,6 +84,20 @@ body {
   animation: shimmer 2s infinite linear;
 }
 
+@keyframes calendarWaveIn {
+  0% { opacity: 0; transform: scale(0.85) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.github-calendar-animate .react-activity-calendar {
+  animation: calendarWaveIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.github-calendar-animate .react-activity-calendar text {
+  fill: #a3a3a3 !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+
 
 /* Apple Liquid Glass Effect */
 .glass {

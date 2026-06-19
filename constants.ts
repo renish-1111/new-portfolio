@@ -83,7 +83,7 @@ export const EXPERIENCE: ExperienceItem[] = [
     role: "Full Stack Developer Intern",
     start: "Jan 2026",
     end: "March 2026",
-    logo: "https://www.esparkinfo.com/wp-content/uploads/2021/09/logo.svg",
+    logo: "https://media.licdn.com/dms/image/v2/D4D0BAQGUs1ioaO3UEg/company-logo_200_200/company-logo_200_200/0/1684753183003/esparkinfo_logo?e=2147483647&v=beta&t=GaSUJYKL4SbRrllQ2r81CCEL12-Q9vOtznT5pgcd_p4",
     link: "https://www.esparkinfo.com/"
   },
   {
@@ -91,7 +91,7 @@ export const EXPERIENCE: ExperienceItem[] = [
     role: "Summer Internship",
     start: "July 2025",
     end: "July 2025",
-    logo: "https://www.esparkinfo.com/wp-content/uploads/2021/09/logo.svg",
+    logo: "https://media.licdn.com/dms/image/v2/D4D0BAQGUs1ioaO3UEg/company-logo_200_200/company-logo_200_200/0/1684753183003/esparkinfo_logo?e=2147483647&v=beta&t=GaSUJYKL4SbRrllQ2r81CCEL12-Q9vOtznT5pgcd_p4",
     link: "https://www.esparkinfo.com/"
   },
 ];

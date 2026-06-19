@@ -7,6 +7,11 @@ interface Props {
   setCursorVariant: CursorContextType['setCursorVariant'];
 }
 
+const GITHUB_THEME = {
+  light: ['rgba(255,255,255,0.05)', '#fde047', '#eab308', '#ca8a04', '#a16207'],
+  dark: ['rgba(255,255,255,0.05)', 'rgba(253, 224, 71, 0.4)', 'rgba(234, 179, 8, 0.6)', 'rgba(202, 138, 4, 0.8)', 'rgba(161, 98, 7, 1)']
+} as const;
+
 const GithubStats: React.FC<Props> = ({ setCursorVariant }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -76,55 +81,8 @@ const GithubStats: React.FC<Props> = ({ setCursorVariant }) => {
   return (
     <div 
       ref={sectionRef} 
-      className={`py-12 px-4 md:px-10 lg:px-20 max-w-7xl mx-auto transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+      className={`py-12 px-4 md:px-10 lg:px-20 max-w-7xl mx-auto transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0 github-calendar-animate' : 'opacity-0 translate-y-20'}`}
     >
-      <style>
-        {`
-          @keyframes waveIn {
-            0% { opacity: 0; transform: scale(0.1) translateY(10px); }
-            50% { opacity: 1; transform: scale(1.2) translateY(-2px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-          }
-          
-          @keyframes blockShine {
-            0% { filter: brightness(1) drop-shadow(0 0 0 rgba(234,179,8,0)); }
-            50% { filter: brightness(1.5) drop-shadow(0 0 6px rgba(234,179,8,0.9)); }
-            100% { filter: brightness(1) drop-shadow(0 0 0 rgba(234,179,8,0)); }
-          }
-          
-          ${isVisible ? Array.from({ length: 55 }).map((_, i) => `
-            .react-activity-calendar svg > g > g:nth-child(${i + 1}) rect {
-              animation: waveIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
-                         blockShine 0.8s ease-in-out forwards;
-              animation-delay: ${i * 0.03}s, ${i * 0.03 + 0.3}s;
-              opacity: 0;
-              transform-origin: center;
-              transform-box: fill-box;
-              rx: 2px;
-              ry: 2px;
-            }
-          `).join('') : ''}
-          
-          /* Fallback if rects are flat */
-          ${isVisible ? Array.from({ length: 370 }).map((_, i) => `
-            .react-activity-calendar svg > g > rect:nth-child(${i + 1}) {
-              animation: waveIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
-                         blockShine 0.8s ease-in-out forwards;
-              animation-delay: ${(i % 53) * 0.03 + (i % 7) * 0.015}s, ${(i % 53) * 0.03 + (i % 7) * 0.015 + 0.3}s;
-              opacity: 0;
-              transform-origin: center;
-              transform-box: fill-box;
-              rx: 2px;
-              ry: 2px;
-            }
-          `).join('') : ''}
-
-          .react-activity-calendar text {
-            fill: #a3a3a3 !important;
-            font-family: 'Space Grotesk', sans-serif !important;
-          }
-        `}
-      </style>
 
       <div className="flex flex-col items-center text-center mb-8 md:mb-12 relative">
           {/* Ambient background glow for title */}
@@ -163,10 +121,7 @@ const GithubStats: React.FC<Props> = ({ setCursorVariant }) => {
                 username={githubUsername} 
                 year={new Date().getFullYear()}
                 colorScheme="dark"
-                theme={{
-                  light: ['rgba(255,255,255,0.05)', '#fde047', '#eab308', '#ca8a04', '#a16207'],
-                  dark: ['rgba(255,255,255,0.05)', 'rgba(253, 224, 71, 0.4)', 'rgba(234, 179, 8, 0.6)', 'rgba(202, 138, 4, 0.8)', 'rgba(161, 98, 7, 1)']
-                }}
+                theme={GITHUB_THEME}
                 fontSize={fontSize}
                 blockSize={blockSize}
                 blockMargin={blockMargin}

@@ -20,7 +20,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
   const imageRef = useRef<HTMLImageElement>(null);
   
   const [isVisible, setIsVisible] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -66,10 +65,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
     if (!cardRef.current || !glowRef.current || !contentRef.current || !imageRef.current) return;
     
-    // Reset transforms
     cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
     glowRef.current.style.opacity = '0';
     contentRef.current.style.transform = 'translateZ(0px)';
@@ -79,7 +76,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
   };
 
   const handleMouseEnter = () => {
-    setIsHovered(true);
     setCursorVariant('button');
   };
 
@@ -117,29 +113,26 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, setCursorVari
                     loading="lazy"
                     width={640}
                     height={360}
-                    className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 will-change-transform ${isHovered ? 'scale-110' : 'scale-100'}`}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 will-change-transform group-hover:scale-110"
                 />
                 
-                {/* Glitch Layer 1 - Cyan (Only visible on hover) */}
                 <img 
                     src={project.image} 
                     alt=""
                     aria-hidden="true"
-                    className={`absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-50 transition-all duration-100 will-change-transform ${isHovered ? 'translate-x-1 -translate-y-1 animate-[glitch1_0.2s_infinite]' : 'opacity-0'}`}
+                    className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-0 group-hover:opacity-50 transition-all duration-100 will-change-transform group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:animate-[glitch1_0.2s_infinite]"
                     style={{ filter: 'hue-rotate(90deg) saturate(200%)' }}
                 />
                 
-                {/* Glitch Layer 2 - Red/Magenta (Only visible on hover) */}
                 <img 
                     src={project.image} 
                     alt=""
                     aria-hidden="true"
-                    className={`absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-50 transition-all duration-100 will-change-transform ${isHovered ? '-translate-x-1 translate-y-1 animate-[glitch2_0.3s_infinite]' : 'opacity-0'}`}
+                    className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-0 group-hover:opacity-50 transition-all duration-100 will-change-transform group-hover:-translate-x-1 group-hover:translate-y-1 group-hover:animate-[glitch2_0.3s_infinite]"
                     style={{ filter: 'hue-rotate(-90deg) saturate(200%)' }}
                 />
 
-                {/* Scanline overlay */}
-                <div className={`absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] pointer-events-none transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
 
             {/* Image Overlay Gradient */}

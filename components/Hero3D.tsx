@@ -1,6 +1,6 @@
 import MagneticButton from './MagneticButton';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import SkillOrbit from './SkillOrbit';
 import { CursorContextType } from '../types';
 
@@ -12,32 +12,27 @@ const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+[]{}|;:,.<>?";
 
 const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [displayText, setDisplayText] = useState("RENISH DEV");
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const targetText = "RENISH DEV";
 
-  // --- Scramble Text Effect ---
   const scramble = useCallback(() => {
+    const el = titleRef.current;
+    if (!el) return;
+
     let iteration = 0;
     const interval = setInterval(() => {
-      setDisplayText(() => 
-        targetText
-          .split("")
-          .map((letter, index) => {
-            if (index < iteration) {
-              return targetText[index];
-            }
-            return CHARS[Math.floor(Math.random() * CHARS.length)];
-          })
-          .join("")
-      );
+      el.textContent = targetText
+        .split("")
+        .map((_, index) => {
+          if (index < iteration) return targetText[index];
+          return CHARS[Math.floor(Math.random() * CHARS.length)];
+        })
+        .join("");
 
-      if (iteration >= targetText.length) {
-        clearInterval(interval);
-      }
-
-      iteration += 1 / 3; // Speed of decoding
+      if (iteration >= targetText.length) clearInterval(interval);
+      iteration += 1 / 3;
     }, 30);
-  }, []);
+  }, [targetText]);
 
   useEffect(() => {
     // Trigger scramble on mount
@@ -53,6 +48,7 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
     if (!ctx) return;
 
     let animationFrameId: number;
+    let isRunning = false;
     let w = canvas.width = window.innerWidth;
     let h = canvas.height = window.innerHeight;
     
@@ -60,7 +56,6 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
       path: {x: number, y: number}[];
       opacity: number;
       width: number;
-      life: number;
     }
 
     let bolts: Bolt[] = [];
@@ -75,19 +70,17 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
 
     const createBolt = () => {
         const startX = random(0, w);
-        const startY = -50; // Start slightly above screen
+        const startY = -50;
         
         const path = [{x: startX, y: startY}];
         let currX = startX;
         let currY = startY;
         
-        // Generate jagged path down the screen
         while(currY < h + 50) {
             currY += random(15, 45);
             currX += random(-30, 30);
             path.push({x: currX, y: currY});
             
-            // Occasional horizontal jolt / branch point
             if(Math.random() < 0.1) {
                  currX += random(-50, 50);
                  path.push({x: currX, y: currY});
@@ -98,71 +91,90 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
             path,
             opacity: 1,
             width: random(2, 4),
-            life: random(10, 20)
         });
 
-        // Trigger yellow screen flash
         flashIntensity = 0.15;
     };
 
     const draw = () => {
-        // Clear Canvas
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, w, h);
+        if (!isRunning) return;
+
+        ctx.clearRect(0, 0, w, h);
         
-        // Draw Flash Overlay
         if (flashIntensity > 0) {
-            ctx.fillStyle = `rgba(253, 224, 71, ${flashIntensity})`; // Yellow-400 color
+            ctx.fillStyle = `rgba(253, 224, 71, ${flashIntensity})`;
             ctx.fillRect(0, 0, w, h);
-            flashIntensity *= 0.85; // Fast decay
+            flashIntensity *= 0.85;
             if(flashIntensity < 0.01) flashIntensity = 0;
         }
         
-        // Randomly Spawn Lightning
-        if (Math.random() < 0.015) { // ~1.5% chance per frame
+        if (Math.random() < 0.015) {
            createBolt();
         }
 
-        // Draw Bolts
-        bolts.forEach((bolt) => {
+        let writeIndex = 0;
+        for (let i = 0; i < bolts.length; i++) {
+            const bolt = bolts[i];
             ctx.beginPath();
             if (bolt.path.length > 0) {
                 ctx.moveTo(bolt.path[0].x, bolt.path[0].y);
-                for (let i = 1; i < bolt.path.length; i++) {
-                    ctx.lineTo(bolt.path[i].x, bolt.path[i].y);
+                for (let j = 1; j < bolt.path.length; j++) {
+                    ctx.lineTo(bolt.path[j].x, bolt.path[j].y);
                 }
             }
 
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-
-            // Glow Effect
-            ctx.shadowBlur = 30;
-            ctx.shadowColor = '#FACC15'; // Yellow-400 glow
-            
-            // Core Line
             ctx.strokeStyle = `rgba(255, 255, 240, ${bolt.opacity})`;
             ctx.lineWidth = bolt.width;
             ctx.stroke();
             
-            // Reset shadow for next operations
-            ctx.shadowBlur = 0;
-            
-            bolt.opacity -= 0.05; // Fade out
-        });
-
-        // Remove dead bolts
-        bolts = bolts.filter(b => b.opacity > 0);
+            bolt.opacity -= 0.05;
+            if (bolt.opacity > 0) bolts[writeIndex++] = bolt;
+        }
+        bolts.length = writeIndex;
 
         animationFrameId = requestAnimationFrame(draw);
     };
 
+    const start = () => {
+      if (isRunning) return;
+      isRunning = true;
+      draw();
+    };
+
+    const stop = () => {
+      isRunning = false;
+      cancelAnimationFrame(animationFrameId);
+      bolts.length = 0;
+      flashIntensity = 0;
+      ctx.clearRect(0, 0, w, h);
+    };
+
+    const section = canvas.parentElement;
+    const observer = new IntersectionObserver(
+      ([entry]) => entry.isIntersecting ? start() : stop(),
+      { threshold: 0 }
+    );
+    if (section) observer.observe(section);
+
+    const onVisibilityChange = () => {
+      if (document.hidden) stop();
+      else if (section) {
+        const rect = section.getBoundingClientRect();
+        if (rect.bottom > 0 && rect.top < window.innerHeight) start();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     window.addEventListener('resize', resize);
-    draw();
+    start();
 
     return () => {
       window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationFrameId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      observer.disconnect();
+      stop();
     };
   }, []);
 
@@ -196,12 +208,13 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
           </h2>
           
           <h1 
+            ref={titleRef}
             onMouseEnter={() => setCursorVariant('text')}
             onMouseLeave={() => setCursorVariant('default')}
             className="text-4xl sm:text-6xl md:text-7xl lg:text-[7rem] font-mono font-bold text-white leading-none tracking-tighter select-none mix-blend-overlay break-words max-w-full mb-8 lg:mb-4 drop-shadow-2xl"
             style={{ textShadow: '0 0 40px rgba(255,255,255,0.2)' }}
           >
-            {displayText}
+            {targetText}
           </h1>
 
           <p className="text-gray-400 font-mono text-xs md:text-sm tracking-wider max-w-md mb-10 leading-relaxed border-l-2 border-yellow-500/50 pl-4">

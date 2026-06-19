@@ -7,6 +7,8 @@ interface CursorProps {
 const Cursor: React.FC<CursorProps> = ({ variant }) => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const trailerRef = useRef<HTMLDivElement>(null);
+  const variantRef = useRef(variant);
+  variantRef.current = variant;
   const [hidden, setHidden] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
@@ -82,7 +84,7 @@ const Cursor: React.FC<CursorProps> = ({ variant }) => {
         const velocity = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         
         // Squeeze cursor when moving fast
-        if (cursorRef.current && variant === 'default') {
+        if (cursorRef.current && variantRef.current === 'default') {
            const scaleY = Math.max(0.6, 1 - (velocity * 0.005));
            const scaleX = Math.min(1.4, 1 + (velocity * 0.005));
            
@@ -104,7 +106,7 @@ const Cursor: React.FC<CursorProps> = ({ variant }) => {
       window.removeEventListener("mouseleave", onMouseLeave);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isMobile, variant]);
+  }, [isMobile]);
 
   const getVariantClasses = () => {
     switch (variant) {
