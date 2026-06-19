@@ -121,6 +121,36 @@ body {
 }
 
 
+/* Mobile performance: skip rendering off-screen heavy sections */
+@media (max-width: 767px) {
+  #about,
+  #experience,
+  #projects,
+  #contact {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 600px;
+  }
+}
+
+/* Reduce will-change abuse — only apply on non-mobile */
+@media (max-width: 767px) {
+  [style*="will-change"] {
+    will-change: auto !important;
+  }
+}
+
+/* Respect OS-level reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  body {
+    animation: none;
+  }
+}
+
 /* Apple Liquid Glass Effect */
 .glass {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);

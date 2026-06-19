@@ -5,16 +5,15 @@ type LenisInstance = {
 };
 
 export function getLenis(): LenisInstance | undefined {
-  return (window as Window & { __lenis?: LenisInstance }).__lenis;
+  return (window as Window & { __lenis?: LenisInstance }).__lenis ?? undefined;
 }
 
 export function onLenisScroll(callback: (scroll: number) => void): () => void {
   let detach: (() => void) | undefined;
 
-  const attach = () => {
+  const attachLenis = () => {
     const lenis = getLenis();
     if (!lenis) return false;
-
     const handler = ({ scroll }: { scroll: number }) => callback(scroll);
     lenis.on('scroll', handler);
     callback(lenis.scroll);
@@ -22,12 +21,30 @@ export function onLenisScroll(callback: (scroll: number) => void): () => void {
     return true;
   };
 
-  if (attach()) {
+  // Native scroll fallback for mobile (when Lenis is disabled)
+  const attachNative = () => {
+    const handler = () => callback(window.scrollY);
+    window.addEventListener('scroll', handler, { passive: true });
+    callback(window.scrollY);
+    detach = () => window.removeEventListener('scroll', handler);
+  };
+
+  // If Lenis is already available, attach immediately
+  if (attachLenis()) {
     return () => detach?.();
   }
 
+  // Poll briefly to see if Lenis starts up; if not, fall back to native scroll
+  let attempts = 0;
   const intervalId = window.setInterval(() => {
-    if (attach()) window.clearInterval(intervalId);
+    attempts++;
+    if (attachLenis()) {
+      window.clearInterval(intervalId);
+    } else if (attempts >= 10) {
+      // Lenis not coming — use native scroll
+      window.clearInterval(intervalId);
+      attachNative();
+    }
   }, 50);
 
   return () => {

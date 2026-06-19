@@ -47,6 +47,11 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Reduce effect intensity on mobile for performance
+    const isMobile = window.innerWidth < 768;
+    // On mobile, spawn bolts less frequently
+    const boltChance = isMobile ? 0.006 : 0.015;
+
     let animationFrameId: number;
     let isRunning = false;
     let w = canvas.width = window.innerWidth;
@@ -108,7 +113,7 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
             if(flashIntensity < 0.01) flashIntensity = 0;
         }
         
-        if (Math.random() < 0.015) {
+        if (Math.random() < boltChance) {
            createBolt();
         }
 

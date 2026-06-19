@@ -162,7 +162,7 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
                     onMouseEnter={() => setCursorVariant('button')}
                     onMouseLeave={() => setCursorVariant('default')}
                     >
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/LeetCode_logo_black.png" alt="LeetCode" className="w-5 h-5 filter brightness-0 invert" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/LeetCode_logo_black.png" alt="LeetCode" className="w-5 h-5 filter brightness-0 invert" loading="lazy" />
                     <span className="font-mono text-sm tracking-widest text-gray-300 group-hover:text-yellow-400 transition-colors">LeetCode</span>
                     </a>
 

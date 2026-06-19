@@ -1,7 +1,12 @@
+// Sound is only active on desktop (pointer: fine)
+const isDesktop =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
 let audioCtx: AudioContext | null = null;
 
 const initAudio = () => {
-  if (typeof window === 'undefined') return null;
+  if (!isDesktop || typeof window === 'undefined') return null;
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
@@ -11,8 +16,14 @@ const initAudio = () => {
   return audioCtx;
 };
 
-// Mechanical "tick" for hover
+// Throttle hover sound — max once per 80ms to avoid spamming AudioContext nodes
+let lastHoverTime = 0;
 export const playHoverSound = () => {
+  if (!isDesktop) return;
+  const now = Date.now();
+  if (now - lastHoverTime < 80) return;
+  lastHoverTime = now;
+
   try {
     const ctx = initAudio();
     if (!ctx) return;
@@ -34,8 +45,8 @@ export const playHoverSound = () => {
   } catch (e) {}
 };
 
-// Clunky "gear shift" for click
 export const playClickSound = () => {
+  if (!isDesktop) return;
   try {
     const ctx = initAudio();
     if (!ctx) return;
@@ -64,28 +75,26 @@ export const playClickSound = () => {
   } catch (e) {}
 };
 
-// Car engine revving up (Acceleration) - EXTENDED TO 5 SECONDS
 export const playPowerUpSound = () => {
+  if (!isDesktop) return;
   try {
     const ctx = initAudio();
     if (!ctx) return;
     
-    const osc1 = ctx.createOscillator(); // Main engine tone
-    const osc2 = ctx.createOscillator(); // Sub-octave for thickness
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gain = ctx.createGain();
 
     osc1.type = 'sawtooth';
     osc2.type = 'sawtooth';
 
-    // Idle RPM (~40Hz) revving to High RPM (~300Hz) over 5 seconds
     osc1.frequency.setValueAtTime(40, ctx.currentTime);
     osc1.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 5.0);
     
     osc2.frequency.setValueAtTime(20, ctx.currentTime);
     osc2.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 5.0);
 
-    // Lowpass filter opens up as engine revs
     filter.type = 'lowpass';
     filter.frequency.setValueAtTime(300, ctx.currentTime);
     filter.frequency.exponentialRampToValueAtTime(2500, ctx.currentTime + 5.0);
@@ -95,11 +104,10 @@ export const playPowerUpSound = () => {
     filter.connect(gain);
     gain.connect(ctx.destination);
 
-    // Engine volume envelope
     gain.gain.setValueAtTime(0, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.2); // Quick fade in
-    gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 4.5); // Hold steady
-    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 5.0);   // Quick fade out at end of OVERDRIVE
+    gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.2);
+    gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 4.5);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 5.0);
 
     osc1.start(ctx.currentTime);
     osc2.start(ctx.currentTime);
@@ -108,8 +116,8 @@ export const playPowerUpSound = () => {
   } catch (e) {}
 };
 
-// Car engine revving down (Deceleration) - EXTENDED TO 3 SECONDS
 export const playPowerDownSound = () => {
+  if (!isDesktop) return;
   try {
     const ctx = initAudio();
     if (!ctx) return;
@@ -122,14 +130,12 @@ export const playPowerDownSound = () => {
     osc1.type = 'sawtooth';
     osc2.type = 'sawtooth';
 
-    // High RPM dropping back to Idle over 3 seconds
     osc1.frequency.setValueAtTime(300, ctx.currentTime);
     osc1.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 3.0);
     
     osc2.frequency.setValueAtTime(150, ctx.currentTime);
     osc2.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 3.0);
 
-    // Filter closes as RPM drops
     filter.type = 'lowpass';
     filter.frequency.setValueAtTime(2500, ctx.currentTime);
     filter.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 3.0);
@@ -139,7 +145,6 @@ export const playPowerDownSound = () => {
     filter.connect(gain);
     gain.connect(ctx.destination);
 
-    // Engine volume envelope fading out over 3 seconds
     gain.gain.setValueAtTime(0.5, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 3.0);
 

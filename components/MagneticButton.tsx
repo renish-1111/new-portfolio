@@ -10,6 +10,11 @@ interface MagneticButtonProps {
   onMouseLeave?: () => void;
 }
 
+// Detect touch/mobile once at module level — avoids per-render checks
+const isTouchDevice =
+  typeof window !== 'undefined' &&
+  (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 1024);
+
 const MagneticButton: React.FC<MagneticButtonProps> = ({ 
   children, 
   className = "", 
@@ -21,6 +26,7 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
   const buttonRef = useRef<HTMLAnchorElement | HTMLButtonElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+    if (isTouchDevice) return; // Skip magnetic effect on touch devices
     const el = buttonRef.current;
     if (!el) return;
     
@@ -33,19 +39,19 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
   };
 
   const handleMouseEnter = () => {
-    playHoverSound();
+    if (!isTouchDevice) playHoverSound();
     onMouseEnter?.();
   };
 
   const handleMouseLeave = () => {
-    if (buttonRef.current) {
+    if (buttonRef.current && !isTouchDevice) {
       buttonRef.current.style.transform = 'translate3d(0px, 0px, 0)';
     }
     onMouseLeave?.();
   };
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
-    playClickSound();
+    if (!isTouchDevice) playClickSound();
     if (onClick) onClick(e);
   };
 
@@ -58,7 +64,7 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
         onClick={handleClick as any}
-        className={`inline-block transition-transform duration-300 ease-out cursor-none ${className}`}
+        className={`inline-block transition-transform duration-300 ease-out ${isTouchDevice ? '' : 'cursor-none'} ${className}`}
       >
         {children}
       </a>
@@ -72,7 +78,7 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
       onMouseLeave={handleMouseLeave}
       onMouseEnter={handleMouseEnter}
       onClick={handleClick as any}
-      className={`inline-block transition-transform duration-300 ease-out cursor-none ${className}`}
+      className={`inline-block transition-transform duration-300 ease-out ${isTouchDevice ? '' : 'cursor-none'} ${className}`}
     >
       {children}
     </button>

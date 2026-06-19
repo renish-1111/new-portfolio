@@ -184,8 +184,7 @@ const Projects: React.FC<ProjectsProps> = ({ setCursorVariant, id }) => {
   return (
     <section id={id} className="py-24 px-6 md:px-20 bg-transparent relative overflow-hidden">
         
-        {/* Grid Background Pattern */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
+        {/* Grid Background Pattern — external URL removed, using local grid only */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
         
         {/* Ambient Glows — constrained on mobile */}

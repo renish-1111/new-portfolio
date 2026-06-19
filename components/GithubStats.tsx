@@ -97,14 +97,14 @@ const GithubStats: React.FC<Props> = ({ setCursorVariant }) => {
           <div className="w-px h-10 bg-gradient-to-b from-yellow-500/50 to-transparent"></div>
       </div>
 
-      <div className="relative w-full" style={{ perspective: '1000px' }}>
+      <div className="relative w-full" style={isMobile ? undefined : { perspective: '1000px' }}>
         <div 
           ref={cardRef}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          onMouseEnter={() => setCursorVariant('text')}
+          onMouseMove={isMobile ? undefined : handleMouseMove}
+          onMouseLeave={isMobile ? undefined : handleMouseLeave}
+          onMouseEnter={isMobile ? undefined : () => setCursorVariant('text')}
           className="relative glass-card p-4 md:p-10 w-full overflow-hidden flex justify-center group hover:shadow-[0_20px_40px_-15px_rgba(234,179,8,0.2)] transition-transform duration-300 ease-out transform"
-          style={{ transformStyle: 'preserve-3d' }}
+          style={isMobile ? undefined : { transformStyle: 'preserve-3d' }}
         >
           {/* Hover Spotlight Glow */}
           <div 

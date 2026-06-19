@@ -81,14 +81,17 @@ const SkillOrbit: React.FC = () => {
   const [isHyperSpeed, setIsHyperSpeed] = useState(false);
   const isHyperSpeedRef = useRef(false);
   const speedRef = useRef(1);
-  const iconScaleRef = useRef(1);       // current lerped scale
-  const targetScaleRef = useRef(1);     // 1 or 1.3
-  const glowRadiusRef = useRef(100);    // current lerped glow radius
-  const targetGlowRef = useRef(100);    // 100 normal, 180 hyper
+  const iconScaleRef = useRef(1);
+  const targetScaleRef = useRef(1);
+  const glowRadiusRef = useRef(100);
+  const targetGlowRef = useRef(100);
   const glowCircleRef = useRef<SVGCircleElement>(null);
   const orbitAngles = useRef([0, 0, 0]);
-  // refs to each icon DOM node: [orbitIdx][iconIdx]
   const iconRefs = useRef<(HTMLDivElement | null)[][]>(ORBITS.map(o => o.icons.map(() => null)));
+
+  // On mobile, slow the orbit significantly to save battery
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+  const speedMultiplier = isMobile ? 0.4 : 1;
 
   const handleCoreClick = () => {
     if (isHyperSpeedRef.current) return;
@@ -114,12 +117,12 @@ const SkillOrbit: React.FC = () => {
     const update = (time: number) => {
       if (!isRunning) return;
 
-      const delta = time - lastTime;
+      const delta = Math.min(time - lastTime, 50); // cap delta to avoid huge jumps
       lastTime = time;
 
       const targetSpeed = isHyperSpeedRef.current ? 8 : 1;
       speedRef.current += (targetSpeed - speedRef.current) * 0.05;
-      const s = speedRef.current;
+      const s = speedRef.current * speedMultiplier;
 
       iconScaleRef.current += (targetScaleRef.current - iconScaleRef.current) * 0.04;
       const sc = iconScaleRef.current;
@@ -163,13 +166,24 @@ const SkillOrbit: React.FC = () => {
     const container = containerRef.current;
     if (container) observer.observe(container);
 
+    // Also pause when tab is hidden
+    const onVisibility = () => {
+      if (document.hidden) stopLoop();
+      else if (container) {
+        const rect = container.getBoundingClientRect();
+        if (rect.bottom > 0 && rect.top < window.innerHeight) startLoop();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
     startLoop();
 
     return () => {
       observer.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
       stopLoop();
     };
-  }, []);
+  }, [speedMultiplier]);
 
   return (
     <div
