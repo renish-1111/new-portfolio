@@ -102,8 +102,8 @@ const App: React.FC = () => {
           <header 
               className={`pointer-events-auto transition-all duration-700 ease-in-out mt-4 md:mt-6 ${
                 scrolled 
-                  ? 'w-[90%] md:w-auto glass rounded-full px-6 py-3' 
-                  : 'w-full bg-transparent px-6 py-6'
+                  ? 'w-[95%] md:w-auto glass rounded-full px-4 md:px-6 py-3' 
+                  : 'w-full bg-transparent px-4 md:px-6 py-4 md:py-6'
               }`}
           >
               <div className={`flex justify-between items-center ${scrolled ? 'gap-12' : 'max-w-7xl mx-auto'}`}>
@@ -214,7 +214,7 @@ const App: React.FC = () => {
           </Suspense>
 
           <footer className="py-12 text-center text-gray-600 text-sm border-t border-white/5 bg-transparent">
-              <div className="flex justify-center gap-6 mb-8">
+              <div className="flex flex-wrap justify-center gap-4 mb-8 px-6">
                   {/* Footer Socials */}
                   {Object.entries(SOCIAL_LINKS).map(([key, url]) => (
                       key !== 'email' && key !== 'leetcode' && (

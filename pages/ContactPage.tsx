@@ -51,10 +51,10 @@ const ContactPage: React.FC<Props> = ({ setCursorVariant }) => {
   };
 
   return (
-    <section className="py-32 px-6 md:px-20 relative overflow-hidden min-h-[80vh] flex items-center justify-center">
+    <section className="py-16 md:py-32 px-6 md:px-20 relative overflow-hidden min-h-[80vh] flex items-center justify-center">
         {/* Background Effects */}
         <div className="absolute inset-0 bg-gradient-to-t from-yellow-900/10 to-transparent pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-yellow-500/5 blur-[120px] rounded-full pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[800px] md:h-[800px] bg-yellow-500/5 blur-[60px] md:blur-[120px] rounded-full pointer-events-none"></div>
         
         <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center gap-12">
             
@@ -63,21 +63,21 @@ const ContactPage: React.FC<Props> = ({ setCursorVariant }) => {
                 <h2 className="text-xs font-mono text-yellow-500 tracking-[0.2em] uppercase mb-4 animate-pulse">
                     Initiate Connection
                 </h2>
-                <h2 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
+                <h2 className="text-4xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
                     Let's Build <br className="hidden md:block"/> Something <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Impossible</span>.
                 </h2>
-                <p className="text-gray-400 mb-8 text-lg max-w-xl mx-auto leading-relaxed border-l-2 border-yellow-500/50 pl-4">
+                <p className="text-gray-400 mb-8 text-base md:text-lg max-w-xl mx-auto leading-relaxed border-l-2 border-yellow-500/50 pl-4">
                     I'm currently available for freelance work, open source collaboration, and internship opportunities.
                 </p>
 
-                <div className="flex flex-row gap-8 text-sm text-gray-500 font-mono mt-4">
-                    <div>
-                        <span className="text-yellow-500 mr-2">&gt;</span> EMAIL: 
-                        <a href={`mailto:${SOCIAL_LINKS.email}`} className="ml-2 text-gray-300 hover:text-white transition-colors" onMouseEnter={() => setCursorVariant('button')} onMouseLeave={() => setCursorVariant('default')}>{SOCIAL_LINKS.email}</a>
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-gray-500 font-mono mt-4 items-start sm:items-center">
+                    <div className="flex items-center flex-wrap gap-1">
+                        <span className="text-yellow-500 mr-1">&gt;</span> EMAIL: 
+                        <a href={`mailto:${SOCIAL_LINKS.email}`} className="ml-1 text-gray-300 hover:text-white transition-colors break-all" onMouseEnter={() => setCursorVariant('button')} onMouseLeave={() => setCursorVariant('default')}>{SOCIAL_LINKS.email}</a>
                     </div>
-                    <div className="hidden sm:block">
-                        <span className="text-yellow-500 mr-2">&gt;</span> GITHUB: 
-                        <a href={SOCIAL_LINKS.github} target="_blank" rel="noreferrer" className="ml-2 text-gray-300 hover:text-white transition-colors" onMouseEnter={() => setCursorVariant('button')} onMouseLeave={() => setCursorVariant('default')}>renish-1111</a>
+                    <div className="flex items-center gap-1">
+                        <span className="text-yellow-500 mr-1">&gt;</span> GITHUB: 
+                        <a href={SOCIAL_LINKS.github} target="_blank" rel="noreferrer" className="ml-1 text-gray-300 hover:text-white transition-colors" onMouseEnter={() => setCursorVariant('button')} onMouseLeave={() => setCursorVariant('default')}>renish-1111</a>
                     </div>
                 </div>
             </div>

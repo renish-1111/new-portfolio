@@ -86,7 +86,7 @@ const GithubStats: React.FC<Props> = ({ setCursorVariant }) => {
 
       <div className="flex flex-col items-center text-center mb-8 md:mb-12 relative">
           {/* Ambient background glow for title */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[100px] bg-yellow-500/10 blur-[60px] rounded-full pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[80px] md:w-[300px] md:h-[100px] bg-yellow-500/10 blur-[40px] md:blur-[60px] rounded-full pointer-events-none" />
 
           <h2 className="text-xs font-mono text-yellow-500 tracking-[0.2em] uppercase mb-4 animate-pulse">
               Daily Grind

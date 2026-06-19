@@ -192,7 +192,7 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent pointer-events-none" />
 
       {/* Main Content Interface - 2 Column on Large Screens */}
-      <div className="z-10 relative p-6 md:p-20 w-full h-full flex flex-col lg:flex-row items-center justify-center lg:justify-between max-w-7xl mx-auto gap-12 lg:gap-8 mt-16 lg:mt-0">
+      <div className="z-10 relative p-6 md:p-20 w-full h-full flex flex-col lg:flex-row items-center justify-center lg:justify-between max-w-7xl mx-auto gap-8 lg:gap-8 mt-16 lg:mt-0">
         
         {/* Decorative Top HUD */}
         <div className="absolute top-10 lg:top-1/4 left-1/2 lg:left-0 -translate-x-1/2 lg:translate-x-20 -translate-y-1/2 flex gap-2">
@@ -203,7 +203,7 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
 
         {/* Left Column: Text & CTAs */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full lg:w-1/2 z-20">
-          <h2 className="text-yellow-500 font-mono text-[10px] md:text-sm tracking-[0.4em] md:tracking-[0.8em] uppercase mb-6 animate-pulse">
+          <h2 className="text-yellow-500 font-mono text-[10px] md:text-sm tracking-[0.4em] md:tracking-[0.8em] uppercase mb-4 animate-pulse">
             System Online // V.11.11
           </h2>
           
@@ -211,19 +211,19 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
             ref={titleRef}
             onMouseEnter={() => setCursorVariant('text')}
             onMouseLeave={() => setCursorVariant('default')}
-            className="text-4xl sm:text-6xl md:text-7xl lg:text-[7rem] font-mono font-bold text-white leading-none tracking-tighter select-none mix-blend-overlay break-words max-w-full mb-8 lg:mb-4 drop-shadow-2xl"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-[7rem] font-mono font-bold text-white leading-none tracking-tighter select-none mix-blend-overlay break-words max-w-full mb-6 lg:mb-4 drop-shadow-2xl"
             style={{ textShadow: '0 0 40px rgba(255,255,255,0.2)' }}
           >
             {targetText}
           </h1>
 
-          <p className="text-gray-400 font-mono text-xs md:text-sm tracking-wider max-w-md mb-10 leading-relaxed border-l-2 border-yellow-500/50 pl-4">
+          <p className="text-gray-400 font-mono text-xs md:text-sm tracking-wider max-w-md mb-8 leading-relaxed border-l-2 border-yellow-500/50 pl-4">
             <span className="text-yellow-400 font-bold">&gt;</span> Full Stack Engineer.<br/>
             <span className="text-yellow-400 font-bold">&gt;</span> AI/ML Enthusiast.<br/>
             <span className="text-yellow-400 font-bold">&gt;</span> Creative Problem Solver.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <a 
               href="#projects"
               className="group relative px-8 py-4 rounded-full overflow-hidden w-full sm:w-auto text-center hover:scale-105 active:scale-95 ease-huly duration-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] hover:shadow-[0_0_50px_rgba(234,179,8,0.6)] border border-yellow-500/50"
@@ -248,8 +248,8 @@ const Hero3D: React.FC<HeroProps> = ({ setCursorVariant }) => {
           </div>
         </div>
 
-        {/* Right Column: 3D Orbit */}
-        <div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center z-10 scale-50 sm:scale-75 lg:scale-100 mt-10 lg:mt-0">
+        {/* Right Column: 3D Orbit — hidden on small mobile, shown on md+ */}
+        <div className="hidden md:flex w-full lg:w-1/2 items-center justify-center z-10 scale-75 md:scale-90 lg:scale-100 mt-6 lg:mt-0">
            <SkillOrbit />
         </div>
 

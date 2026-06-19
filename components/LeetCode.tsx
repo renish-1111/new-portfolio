@@ -136,7 +136,7 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
   return (
     <section ref={sectionRef} className="py-24 px-6 md:px-20 bg-transparent relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-20">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-20">
           
           {/* Text & Social Section */}
           <div className="flex-1 text-center lg:text-left w-full flex flex-col justify-center">
@@ -144,10 +144,10 @@ const LeetCode: React.FC<LeetCodeProps> = ({ setCursorVariant }) => {
                 <h2 className="text-xs font-mono text-yellow-500 tracking-[0.2em] uppercase mb-4 animate-pulse">
                 Continuous Improvement
                 </h2>
-                <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight">
+                <h2 className="text-3xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight">
                 Code <br className="hidden lg:block"/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Stats</span> <br className="hidden lg:block"/> & Socials
                 </h2>
-                <p className="text-gray-400 leading-relaxed max-w-md mx-auto lg:mx-0 mb-10 border-l-2 border-yellow-500/50 pl-4 text-lg">
+                <p className="text-gray-400 leading-relaxed max-w-md mx-auto lg:mx-0 mb-8 border-l-2 border-yellow-500/50 pl-4 text-base md:text-lg">
                 I actively solve algorithmic challenges to improve my problem-solving skills and optimize code performance. Follow my journey across platforms.
                 </p>
 

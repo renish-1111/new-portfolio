@@ -65,10 +65,10 @@ const Skills: React.FC<SkillsProps> = ({ setCursorVariant, id }) => {
     <section 
       id={id}
       ref={sectionRef} 
-      className="pt-32 pb-10 px-4 md:px-20 bg-transparent relative z-10 overflow-hidden"
+      className="pt-20 md:pt-32 pb-10 px-4 md:px-20 bg-transparent relative z-10 overflow-hidden"
     >
-      {/* Background ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-yellow-900/10 blur-[120px] pointer-events-none" />
+      {/* Background ambient glow — scaled down on mobile */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[200px] md:w-[800px] md:h-[600px] bg-yellow-900/10 blur-[80px] md:blur-[120px] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto relative">
         <div className={`text-center mb-20 transition-all duration-1000 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
